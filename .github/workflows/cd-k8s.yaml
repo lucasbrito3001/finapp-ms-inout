@@ -20,8 +20,12 @@ jobs:
       GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
       GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
       GKE_LOCATION: ${{ vars.GKE_LOCATION }}
-      REPO_NAME: ${ ${{ github.repository }}#*/ }
     steps:
+      - name: Set repo name env variable
+        id: getRepoName
+        run: |-
+          echo "REPO_NAME=${${{ github.repository }}#*/}" >> $GITHUB_ENV
+
       - name: Checkout to repository content
         uses: actions/checkout@v4
 
