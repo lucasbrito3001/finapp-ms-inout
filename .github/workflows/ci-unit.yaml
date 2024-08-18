@@ -1,0 +1,13 @@
+on:
+  push:
+    branches-ignore:
+      - develop
+      - homolog
+      - main
+
+jobs:
+  run_unit_tests:
+    runs-on: ubuntu
+    steps:
+      - name: Checkout to repository content
+        uses: actions/checkout@v4
