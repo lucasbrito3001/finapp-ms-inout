@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}
+    {{- toYaml .Values.containers.app.labels | nindent 4 }}
+  annotations:
+    {{- toYaml .Values.containers.app.annotations | nindent 4 }}
+spec:
+  replicas: {{ .Values.containers.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: app
+          image: {{ .Values.containers.app.image }}
+          ports:
+          - appPort: {{ .Values.containers.app.port }}
+          resources:
+            {{- toYaml .Values.containers.app.resources | nindent 12 }}

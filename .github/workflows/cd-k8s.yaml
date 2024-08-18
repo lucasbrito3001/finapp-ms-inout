@@ -1,3 +1,5 @@
+name: Build and deploy to GKE
+
 on:
   push:
     branches:
@@ -5,14 +7,20 @@ on:
       - homolog
       - main
 
-env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/ms-finapp-inout
-
 jobs:
-  publish-docker-image:
+  deploy_gke:
+    name: Build and push docker image do Docker Hub
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      CONTAINER_REGISTRY: ${{ secrets.DOCKERHUB_USERNAME }}
+      GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+      GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
+      GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+      GKE_LOCATION: ${{ vars.GKE_LOCATION }}
+      REPO_NAME: ${ ${{ github.repository }}#*/ }
     steps:
       - name: Checkout to repository content
         uses: actions/checkout@v4
@@ -20,8 +28,8 @@ jobs:
       - name: Build image
         run: |-
           docker build \
-            -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            -t ${{ env.IMAGE_NAME }}:latest .
+            -t ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }} \
+            -t ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:latest .
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -31,5 +39,27 @@ jobs:
 
       - name: Push image to Docker Hub
         run: |-
-          docker push ${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push ${{ env.IMAGE_NAME }}:latest
+          docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }}
+          docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:latest
+
+      - name: Setup gcloud cli
+        uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+        with:
+          service_account_key: ${{ env.GKE_SA_KEY }}
+          project_id: ${{ env.GKE_PROJECT }}
+
+      - name: Connect to GKE cluster
+        uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_LOCATION }}
+          credentials: ${{ env.GKE_SA_KEY }}
+
+      - name: Install helm chart on cluster
+        run: |-
+          helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./helm \
+            --install \
+            --create-namespace \
+            --atomic \
+            --timeout 4m \
+            --set containers.app.image="${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:latest"

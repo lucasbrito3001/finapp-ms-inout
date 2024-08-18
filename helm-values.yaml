@@ -1,0 +1,20 @@
+containers:
+  replicas: 1
+  app:
+    image: ''
+    port: 3000
+    labels:
+      foo: bar
+    annotations:
+      owner: dev-team
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+hpa:
+  cpuTargetUtilization: 75
+  memoryTargetUtilization: 80
