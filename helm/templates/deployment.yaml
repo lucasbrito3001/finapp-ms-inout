@@ -27,3 +27,17 @@ spec:
             containerPort: {{ .Values.containers.app.port }}
           resources:
             {{- toYaml .Values.containers.app.resources | nindent 12 }}
+        {{- if .Values.secrets.enabled }}
+        volumeMounts:
+        - mountPath: "/var/secrets"
+          name: app-secrets
+        {{- end }}
+      {{- if .Values.secrets.enabled }}
+      volumes:
+        - name: app-secrets
+          csi:
+            driver: secrets-store-gke.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Release.Name }}
+      {{- end }}

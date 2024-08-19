@@ -14,6 +14,14 @@ containers:
       limits:
         cpu: 100m
         memory: 128Mi
+    env:
+      SALT_ROUNDS: 1
+
+secrets:
+  enabled: true
+  list:
+    - name: ms-finapp-inout-env
+      version: 1
 
 hpa:
   cpuTargetUtilization: 75
