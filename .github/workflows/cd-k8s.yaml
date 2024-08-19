@@ -63,7 +63,7 @@ jobs:
       - name: Create namespace and service account
         run: |-
           kubectl create ns ${{ env.REPO_NAME }} || true
-          kubectl create serviceaccount -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} || true
+          kubectl create serviceaccount -n ${{ env.REPO_NAME }} "sa-${{ env.REPO_NAME }}" || true
 
       - name: Install yq and jq
         run: |-
@@ -75,7 +75,7 @@ jobs:
           secrets_list=($(yq -o=json '.secrets.list' helm-values.yaml | jq -rc '.[]'))
 
           for secret in ${secrets_list[@]}; do
-            SECRET_NAME="$(echo $secret | jq '.name')"
+            SECRET_NAME="$(echo $secret | jq -r '.name')"
 
             gcloud secrets add-iam-policy-binding $SECRET_NAME \
             --role=roles/secretmanager.secretAccessor \
