@@ -63,7 +63,7 @@ jobs:
       - name: Create namespace and service account
         run: |-
           kubectl create ns ${{ env.REPO_NAME }} || true
-          kubectl apply -f ./k8s/sa.yaml
+          kubectl create serviceaccount -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} || true
 
       - name: Install yq and jq
         run: |-
@@ -84,7 +84,7 @@ jobs:
 
       - name: Install helm chart on cluster
         run: |-
-          helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./k8s/helm \
+          helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./helm \
             -f ./helm-values.yaml \
             --install \
             --create-namespace \
