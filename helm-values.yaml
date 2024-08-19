@@ -19,6 +19,7 @@ containers:
 
 secrets:
   enabled: true
+  projectId: gcp-testing-431723
   list:
     - name: ms-finapp-inout-env
       version: 1
