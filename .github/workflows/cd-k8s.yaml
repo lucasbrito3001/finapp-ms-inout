@@ -17,6 +17,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       CONTAINER_REGISTRY: ${{ secrets.DOCKERHUB_USERNAME }}
       GKE_PROJECT: ${{ secrets.GKE_PROJECT }}
+      GKE_PROJECT_NUMBER: ${{ secrets.GKE_PROJECT_NUMBER }}
       GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
       GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
       GKE_LOCATION: ${{ vars.GKE_LOCATION }}
@@ -59,9 +60,31 @@ jobs:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_LOCATION }}
 
+      - name: Create namespace and service account
+        run: |-
+          kubectl create ns ${{ env.REPO_NAME }} || true
+          kubectl apply -f ./k8s/sa.yaml
+
+      - name: Install yq and jq
+        run: |-
+          sudo snap install yq
+          sudo apt install jq
+
+      - name: Give permission to service account to read secrets
+        run: |-
+          secrets_list=($(yq -o=json '.secrets.list' helm-values.yaml | jq -rc '.[]'))
+
+          for secret in ${secrets_list[@]}; do
+            SECRET_NAME="$(echo $secret | jq '.name')"
+
+            gcloud secrets add-iam-policy-binding $SECRET_NAME \
+            --role=roles/secretmanager.secretAccessor \
+            --member=principal://iam.googleapis.com/projects/${{ env.GKE_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ env.GKE_PROJECT }}.svc.id.goog/subject/ns/${{ env.REPO_NAME }}/sa/sa-${{ env.REPO_NAME }}
+          done
+
       - name: Install helm chart on cluster
         run: |-
-          helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./helm \
+          helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./k8s/helm \
             -f ./helm-values.yaml \
             --install \
             --create-namespace \

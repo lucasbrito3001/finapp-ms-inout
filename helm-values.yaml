@@ -23,6 +23,8 @@ secrets:
   list:
     - name: ms-finapp-inout-env
       version: 1
+    - name: ms-finapp-inout-env
+      version: 1
 
 hpa:
   cpuTargetUtilization: 75
