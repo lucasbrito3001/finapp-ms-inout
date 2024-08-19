@@ -21,6 +21,7 @@ spec:
       containers:
         - name: app
           image: {{ .Values.containers.app.image }}
+          imagePullPolicy: IfNotPresent
           ports:
           - name: app-port
             containerPort: {{ .Values.containers.app.port }}

@@ -67,4 +67,4 @@ jobs:
             --create-namespace \
             --atomic \
             --timeout 4m \
-            --set containers.app.image="${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:latest"
+            --set containers.app.image="${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }}"
