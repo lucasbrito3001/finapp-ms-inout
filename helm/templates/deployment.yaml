@@ -22,6 +22,7 @@ spec:
         - name: app
           image: {{ .Values.containers.app.image }}
           ports:
-          - appPort: {{ .Values.containers.app.port }}
+          - name: app-port
+            containerPort: {{ .Values.containers.app.port }}
           resources:
             {{- toYaml .Values.containers.app.resources | nindent 12 }}
