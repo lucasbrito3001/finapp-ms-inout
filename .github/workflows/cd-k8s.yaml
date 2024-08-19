@@ -62,6 +62,7 @@ jobs:
       - name: Install helm chart on cluster
         run: |-
           helm upgrade -n ${{ env.REPO_NAME }} ${{ env.REPO_NAME }} ./helm \
+            -f ./helm-values.yaml
             --install \
             --create-namespace \
             --atomic \
