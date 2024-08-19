@@ -48,18 +48,16 @@ jobs:
           docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:${{ github.sha }}
           docker push ${{ env.CONTAINER_REGISTRY }}/${{ env.REPO_NAME }}:latest
 
-      - name: Setup gcloud cli
-        uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+      - name: Auth to gcp
+        uses: google-github-actions/auth@v2
         with:
-          service_account_key: ${{ env.GKE_SA_KEY }}
-          project_id: ${{ env.GKE_PROJECT }}
+          credentials_json: ${{ env.GKE_SA_KEY }}
 
       - name: Connect to GKE cluster
-        uses: google-github-actions/get-gke-credentials@db150f2cc60d1716e61922b832eae71d2a45938f
+        uses: google-github-actions/get-gke-credentials@v2
         with:
           cluster_name: ${{ env.GKE_CLUSTER }}
           location: ${{ env.GKE_LOCATION }}
-          credentials: ${{ env.GKE_SA_KEY }}
 
       - name: Install helm chart on cluster
         run: |-
