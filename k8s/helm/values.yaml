@@ -1,0 +1,29 @@
+containers:
+  replicas: 1
+  app:
+    image: ""
+    port: ""
+    labels: {}
+      # foo: bar
+    annotations: {}
+      # foo: bar
+    resources:
+      requests: {}
+        # cpu: 100m
+        # memory: 128Mi
+      limits: {}
+        # cpu: 100m
+        # memory: 128Mi
+    env: {}
+      # foo: bar
+
+secrets:
+  enabled: false
+  projectId: ""
+  list: []
+  # - name: foo
+  #   version: 1
+
+hpa:
+  cpuTargetUtilization: 75
+  memoryTargetUtilization: 80

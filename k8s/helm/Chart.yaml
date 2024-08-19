@@ -1,0 +1,15 @@
+name: ms-finapp-general-chart
+
+apiVersion: v2
+version: 1.0.0
+
+description: General helm chart to the financial app microsservices
+type: application
+
+keywords:
+  - finapp
+
+maintainers:
+  - name: Lucas de Brito
+    email: devlucasmail@gmail.com
+    url: https://lucasdbrito.com
