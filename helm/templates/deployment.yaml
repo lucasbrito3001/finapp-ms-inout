@@ -26,6 +26,25 @@ spec:
           ports:
           - name: app-port
             containerPort: {{ .Values.containers.app.port }}
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            failureThreshold: 5
+            periodSeconds: 10
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 80
+            failureThreshold: 3
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 80
+            failureThreshold: 1
+            periodSeconds: 30
           resources:
             {{- toYaml .Values.containers.app.resources | nindent 12 }}
           {{- if .Values.secrets.enabled }}

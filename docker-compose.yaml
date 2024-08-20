@@ -12,7 +12,7 @@ services:
       - fin-plan-network
 
   app0:
-    container_name: fin-plan-app0
+    container_name: ms-finapp-inout0
     build: .
     command: ['npm', 'run', 'start:dev']
     environment:
