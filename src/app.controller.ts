@@ -28,6 +28,7 @@ export class AppController {
     try {
       await queryRunner.connect();
       await queryRunner.query('SELECT 1');
+      await queryRunner.release();
     } catch (error) {
       console.log(error);
       throw new InternalErrorException('Database is not initialized');
